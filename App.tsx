@@ -34,10 +34,10 @@ const App: React.FC = () => {
       isMinimized: false,
       isMaximized: false,
       zIndex: windows.length + 1,
-      x: 60 + (windows.length * 30),
+      x: 80 + (windows.length * 30),
       y: 60 + (windows.length * 30),
-      width: appId === 'calculator' ? 320 : (appId === 'camera' ? 640 : 900),
-      height: appId === 'calculator' ? 480 : (appId === 'camera' ? 480 : 650),
+      width: appId === 'calculator' ? 320 : (appId === 'camera' ? 640 : 920),
+      height: appId === 'calculator' ? 480 : (appId === 'camera' ? 480 : 600),
     };
     setWindows(prev => [...prev, newWindow]);
     setActiveWindow(id);
@@ -89,12 +89,12 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className="h-screen w-screen relative overflow-hidden bg-cover bg-center transition-[background-image] duration-1000"
-      style={{ backgroundImage: `url(${wallpaper})` }}
+      className="h-screen w-screen relative overflow-hidden bg-slate-900 bg-cover bg-center transition-[background-image] duration-1000 animate-boot"
+      style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(${wallpaper})` }}
       onClick={() => setIsStartOpen(false)}
     >
-      {/* Desktop Layer - Vertical Grid for Better App Management */}
-      <div className="p-8 flex flex-col flex-wrap h-[calc(100%-48px)] gap-4 content-start">
+      {/* Desktop Grid */}
+      <div className="p-6 flex flex-col flex-wrap h-[calc(100%-48px)] gap-2 content-start">
         {[
           { id: 'explorer', label: 'This PC', icon: 'HardDrive' },
           { id: 'browser', label: 'Cerium Web', icon: 'Globe' },
@@ -105,13 +105,15 @@ const App: React.FC = () => {
         ].map(item => (
           <div 
             key={item.id}
-            className="w-24 flex flex-col items-center gap-1 group cursor-default p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-all border border-transparent hover:border-white/10"
+            className="w-24 flex flex-col items-center gap-1 group cursor-default p-2 rounded hover:bg-white/15 active:bg-white/25 transition-all border border-transparent hover:border-white/10"
             onDoubleClick={() => launchApp(item.id as AppId)}
           >
-            <div className="w-12 h-12 flex items-center justify-center transition-transform group-active:scale-95 drop-shadow-xl">
-              <Icon name={item.icon} size={36} color="white" className="filter drop-shadow-md" />
+            <div className="w-12 h-12 flex items-center justify-center transition-transform group-active:scale-90">
+              <Icon name={item.icon} size={38} color="white" className="filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
             </div>
-            <span className="text-[11px] text-white font-medium drop-shadow-lg text-center leading-tight">{item.label}</span>
+            <span className="text-[11px] text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-center leading-tight">
+              {item.label}
+            </span>
           </div>
         ))}
       </div>
@@ -142,48 +144,48 @@ const App: React.FC = () => {
         className="fixed bottom-0 left-0 right-0 h-12 glass-dark z-[10000] flex items-center justify-between px-2"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex-1 flex items-center gap-1">
+        <div className="flex-1 flex items-center">
           <button 
             onClick={toggleStart}
-            className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${isStartOpen ? 'bg-white/15 shadow-inner' : 'hover:bg-white/10'}`}
+            className={`w-10 h-10 rounded flex items-center justify-center transition-all ${isStartOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}
           >
             <div className="grid grid-cols-2 gap-0.5 p-1 w-6 h-6 rotate-45">
-               <div className="bg-blue-300 rounded-sm"></div>
-               <div className="bg-blue-400 rounded-sm"></div>
-               <div className="bg-blue-500 rounded-sm"></div>
-               <div className="bg-blue-600 rounded-sm"></div>
+               <div className="bg-blue-300 rounded-sm shadow-sm"></div>
+               <div className="bg-blue-400 rounded-sm shadow-sm"></div>
+               <div className="bg-blue-500 rounded-sm shadow-sm"></div>
+               <div className="bg-blue-600 rounded-sm shadow-sm"></div>
             </div>
           </button>
 
-          <div className="h-8 w-[1px] bg-white/10 mx-1" />
+          <div className="h-6 w-[1px] bg-white/10 mx-2" />
 
-          {/* Centered App Icons */}
-          <div className="flex-1 flex justify-center items-center gap-1">
+          {/* Centered Taskbar Icons */}
+          <div className="flex justify-center items-center gap-1 mx-auto">
             {windows.map(w => (
               <button 
                 key={w.id}
                 onClick={() => focusWindow(w.id)}
-                className={`w-10 h-10 rounded-md flex items-center justify-center transition-all relative group ${activeWindow === w.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                className={`w-10 h-10 rounded flex items-center justify-center transition-all relative group ${activeWindow === w.id ? 'bg-white/15' : 'hover:bg-white/10'}`}
                 title={w.title}
               >
-                <Icon name={getAppIcon(w.appId)} size={22} className="text-slate-200 group-hover:scale-110 transition-transform" />
-                <div className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 h-1 bg-blue-500 rounded-full transition-all ${activeWindow === w.id ? 'w-4' : 'w-1'}`} />
+                <Icon name={getAppIcon(w.appId)} size={24} className={`transition-transform duration-200 ${activeWindow === w.id ? 'scale-110' : 'scale-100'}`} color="white" />
+                <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-1 bg-blue-400 rounded-t-full transition-all duration-300 ${activeWindow === w.id ? 'w-4' : (w.isMinimized ? 'w-1 opacity-50' : 'w-1')}`} />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-4 px-4 text-white text-[11px] font-medium">
-          <div className="flex items-center gap-2 hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-default">
-            <Icon name="Wifi" size={14} />
-            <Icon name="Volume2" size={14} />
-            <Icon name="Battery" size={14} />
+        {/* System Tray */}
+        <div className="flex items-center gap-3 px-3 text-white text-[11px] font-medium">
+          <div className="flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition-colors cursor-default">
+             <Icon name="Wifi" size={14} />
+             <Icon name="Volume2" size={14} />
           </div>
-          <div className="flex flex-col items-end hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-default">
+          <div className="flex flex-col items-end hover:bg-white/10 px-2 py-0.5 rounded transition-colors cursor-default leading-tight">
             <span>{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>{time.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+            <span className="opacity-80 font-normal">{time.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
           </div>
-          <button className="h-10 w-1 border-l border-white/20 ml-2 hover:bg-white/10" title="Peek at desktop" />
+          <button className="h-10 w-1 border-l border-white/20 hover:bg-white/10 transition-colors" title="Peek at desktop" />
         </div>
       </div>
     </div>
