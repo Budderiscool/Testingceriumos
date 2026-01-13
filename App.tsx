@@ -7,6 +7,9 @@ import { WindowState, AppId } from './types';
 import { Terminal } from './apps/Terminal';
 import { Notepad } from './apps/Notepad';
 import { Settings } from './apps/Settings';
+import { Explorer } from './apps/Explorer';
+import { Browser } from './apps/Browser';
+import { Calculator } from './apps/Calculator';
 
 const App: React.FC = () => {
   const [windows, setWindows] = useState<WindowState[]>([]);
@@ -25,15 +28,15 @@ const App: React.FC = () => {
     const newWindow: WindowState = {
       id,
       appId,
-      title: appId.charAt(0).toUpperCase() + appId.slice(1),
+      title: getAppTitle(appId),
       isOpen: true,
       isMinimized: false,
       isMaximized: false,
       zIndex: windows.length + 1,
-      x: 100 + (windows.length * 40),
-      y: 100 + (windows.length * 40),
-      width: 800,
-      height: 600,
+      x: 60 + (windows.length * 30),
+      y: 60 + (windows.length * 30),
+      width: appId === 'calculator' ? 320 : 900,
+      height: appId === 'calculator' ? 480 : 650,
     };
     setWindows(prev => [...prev, newWindow]);
     setActiveWindow(id);
@@ -69,6 +72,9 @@ const App: React.FC = () => {
       case 'terminal': return <Terminal />;
       case 'notepad': return <Notepad />;
       case 'settings': return <Settings onWallpaperChange={setWallpaper} />;
+      case 'explorer': return <Explorer />;
+      case 'browser': return <Browser />;
+      case 'calculator': return <Calculator />;
       default: return (
         <div className="flex flex-col items-center justify-center h-full text-slate-400">
           <Icon name="Construction" size={64} className="mb-4" />
@@ -87,10 +93,10 @@ const App: React.FC = () => {
       {/* Desktop Layer */}
       <div className="p-8 grid grid-cols-1 auto-rows-max gap-8 h-full">
         {[
+          { id: 'explorer', label: 'This PC', icon: 'HardDrive' },
+          { id: 'browser', label: 'Cerium Web', icon: 'Globe' },
           { id: 'terminal', label: 'Terminal', icon: 'Terminal' },
-          { id: 'explorer', label: 'This PC', icon: 'Folder' },
-          { id: 'notepad', label: 'Drafts', icon: 'FileText' },
-          { id: 'browser', label: 'Cerium Browser', icon: 'Globe' },
+          { id: 'notepad', label: 'Notepad', icon: 'FileText' },
         ].map(item => (
           <div 
             key={item.id}
@@ -146,17 +152,19 @@ const App: React.FC = () => {
 
           <div className="h-8 w-[1px] bg-white/10 mx-1" />
 
-          {windows.map(w => (
-            <button 
-              key={w.id}
-              onClick={() => focusWindow(w.id)}
-              className={`min-w-[40px] px-3 h-10 rounded-md flex items-center gap-2 transition-all relative group ${activeWindow === w.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
-            >
-              <Icon name={getAppIcon(w.appId)} size={20} className="text-slate-200" />
-              {activeWindow === w.id && <span className="text-xs text-white max-w-[100px] truncate">{w.title}</span>}
-              <div className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 h-1 bg-blue-500 rounded-full transition-all ${activeWindow === w.id ? 'w-4' : 'w-1'}`} />
-            </button>
-          ))}
+          {/* Centered App Icons */}
+          <div className="flex-1 flex justify-center items-center gap-1">
+            {windows.map(w => (
+              <button 
+                key={w.id}
+                onClick={() => focusWindow(w.id)}
+                className={`w-10 h-10 rounded-md flex items-center justify-center transition-all relative group ${activeWindow === w.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
+              >
+                <Icon name={getAppIcon(w.appId)} size={22} className="text-slate-200" />
+                <div className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 h-1 bg-blue-500 rounded-full transition-all ${activeWindow === w.id ? 'w-4' : 'w-1'}`} />
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex items-center gap-4 px-4 text-white text-xs font-medium">
@@ -175,6 +183,19 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+function getAppTitle(appId: AppId): string {
+  switch (appId) {
+    case 'explorer': return 'File Explorer';
+    case 'browser': return 'Cerium Browser';
+    case 'terminal': return 'Command Prompt';
+    case 'notepad': return 'Notepad';
+    case 'settings': return 'Settings';
+    case 'calculator': return 'Calculator';
+    case 'camera': return 'Camera';
+    default: return 'App';
+  }
+}
 
 function getAppIcon(appId: string): string {
   switch (appId) {
