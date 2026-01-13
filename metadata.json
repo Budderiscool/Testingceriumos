@@ -1,0 +1,9 @@
+{
+  "name": "CeriumOS",
+  "description": "A high-performance, web-based operating system environment with a modern Windows-inspired interface, featuring multi-window management, an AI-powered terminal, and native-feeling applications.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
