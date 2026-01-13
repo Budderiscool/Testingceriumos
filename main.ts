@@ -1,8 +1,12 @@
-// Added global declaration for Deno to resolve the "Cannot find name 'Deno'" error
-declare const Deno: any;
-import { serveDir } from "https://deno.land/std@0.225.0/http/file_server.ts";
 
+// Use JSR instead of deno.land for better reliability and performance on Deno Deploy
+// @ts-ignore: Deno is available in the deploy environment
+import { serveDir } from "jsr:@std/http/file-server";
+
+// @ts-ignore
 Deno.serve((req: Request) => {
+  const url = new URL(req.url);
+  // Serve static files from the current directory
   return serveDir(req, {
     fsRoot: ".",
     showIndex: true,

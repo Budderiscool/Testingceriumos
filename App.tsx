@@ -10,6 +10,7 @@ import { Settings } from './apps/Settings';
 import { Explorer } from './apps/Explorer';
 import { Browser } from './apps/Browser';
 import { Calculator } from './apps/Calculator';
+import { Camera } from './apps/Camera';
 
 const App: React.FC = () => {
   const [windows, setWindows] = useState<WindowState[]>([]);
@@ -35,11 +36,12 @@ const App: React.FC = () => {
       zIndex: windows.length + 1,
       x: 60 + (windows.length * 30),
       y: 60 + (windows.length * 30),
-      width: appId === 'calculator' ? 320 : 900,
-      height: appId === 'calculator' ? 480 : 650,
+      width: appId === 'calculator' ? 320 : (appId === 'camera' ? 640 : 900),
+      height: appId === 'calculator' ? 480 : (appId === 'camera' ? 480 : 650),
     };
     setWindows(prev => [...prev, newWindow]);
     setActiveWindow(id);
+    setIsStartOpen(false);
   }, [windows.length]);
 
   const closeWindow = (id: string) => {
@@ -75,6 +77,7 @@ const App: React.FC = () => {
       case 'explorer': return <Explorer />;
       case 'browser': return <Browser />;
       case 'calculator': return <Calculator />;
+      case 'camera': return <Camera />;
       default: return (
         <div className="flex flex-col items-center justify-center h-full text-slate-400">
           <Icon name="Construction" size={64} className="mb-4" />
@@ -90,23 +93,25 @@ const App: React.FC = () => {
       style={{ backgroundImage: `url(${wallpaper})` }}
       onClick={() => setIsStartOpen(false)}
     >
-      {/* Desktop Layer */}
-      <div className="p-8 grid grid-cols-1 auto-rows-max gap-8 h-full">
+      {/* Desktop Layer - Vertical Grid for Better App Management */}
+      <div className="p-8 flex flex-col flex-wrap h-[calc(100%-48px)] gap-4 content-start">
         {[
           { id: 'explorer', label: 'This PC', icon: 'HardDrive' },
           { id: 'browser', label: 'Cerium Web', icon: 'Globe' },
           { id: 'terminal', label: 'Terminal', icon: 'Terminal' },
           { id: 'notepad', label: 'Notepad', icon: 'FileText' },
+          { id: 'camera', label: 'Camera', icon: 'Camera' },
+          { id: 'calculator', label: 'Calculator', icon: 'Calculator' },
         ].map(item => (
           <div 
             key={item.id}
-            className="w-24 flex flex-col items-center gap-1 group cursor-default"
+            className="w-24 flex flex-col items-center gap-1 group cursor-default p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-all border border-transparent hover:border-white/10"
             onDoubleClick={() => launchApp(item.id as AppId)}
           >
-            <div className="w-16 h-16 rounded-xl flex items-center justify-center bg-white/10 group-hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors shadow-lg">
-              <Icon name={item.icon} size={32} color="white" className="drop-shadow-md" />
+            <div className="w-12 h-12 flex items-center justify-center transition-transform group-active:scale-95 drop-shadow-xl">
+              <Icon name={item.icon} size={36} color="white" className="filter drop-shadow-md" />
             </div>
-            <span className="text-xs text-white font-medium drop-shadow-lg text-center">{item.label}</span>
+            <span className="text-[11px] text-white font-medium drop-shadow-lg text-center leading-tight">{item.label}</span>
           </div>
         ))}
       </div>
@@ -140,13 +145,13 @@ const App: React.FC = () => {
         <div className="flex-1 flex items-center gap-1">
           <button 
             onClick={toggleStart}
-            className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${isStartOpen ? 'bg-white/10' : 'hover:bg-white/5'}`}
+            className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${isStartOpen ? 'bg-white/15 shadow-inner' : 'hover:bg-white/10'}`}
           >
             <div className="grid grid-cols-2 gap-0.5 p-1 w-6 h-6 rotate-45">
+               <div className="bg-blue-300 rounded-sm"></div>
                <div className="bg-blue-400 rounded-sm"></div>
                <div className="bg-blue-500 rounded-sm"></div>
                <div className="bg-blue-600 rounded-sm"></div>
-               <div className="bg-blue-700 rounded-sm"></div>
             </div>
           </button>
 
@@ -159,23 +164,24 @@ const App: React.FC = () => {
                 key={w.id}
                 onClick={() => focusWindow(w.id)}
                 className={`w-10 h-10 rounded-md flex items-center justify-center transition-all relative group ${activeWindow === w.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                title={w.title}
               >
-                <Icon name={getAppIcon(w.appId)} size={22} className="text-slate-200" />
+                <Icon name={getAppIcon(w.appId)} size={22} className="text-slate-200 group-hover:scale-110 transition-transform" />
                 <div className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 h-1 bg-blue-500 rounded-full transition-all ${activeWindow === w.id ? 'w-4' : 'w-1'}`} />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-4 px-4 text-white text-xs font-medium">
-          <div className="flex items-center gap-2 hover:bg-white/5 px-2 py-1 rounded transition-colors cursor-default">
+        <div className="flex items-center gap-4 px-4 text-white text-[11px] font-medium">
+          <div className="flex items-center gap-2 hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-default">
             <Icon name="Wifi" size={14} />
             <Icon name="Volume2" size={14} />
             <Icon name="Battery" size={14} />
           </div>
-          <div className="flex flex-col items-end hover:bg-white/5 px-2 py-1 rounded transition-colors cursor-default">
+          <div className="flex flex-col items-end hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-default">
             <span>{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>{time.toLocaleDateString()}</span>
+            <span>{time.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
           </div>
           <button className="h-10 w-1 border-l border-white/20 ml-2 hover:bg-white/10" title="Peek at desktop" />
         </div>
